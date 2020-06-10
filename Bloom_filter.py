@@ -91,5 +91,5 @@ if __name__ == '__main__':
     bloom_filter = BloomFilter(n, R_sum)
     bloom_filter.insert(url)
     url_negative = negative_sample['url']
-    n1 = bloom_filter.test(url_negative)
+    n1 = bloom_filter.test(url_negative, single_key=False)
     print('False positive items: ', sum(n1))
