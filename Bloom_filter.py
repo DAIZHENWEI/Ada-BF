@@ -68,7 +68,7 @@ class BloomFilter():
                     ss += 1
         return test_result
 
-
+'''Run Bloom filter'''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
