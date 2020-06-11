@@ -139,7 +139,7 @@ def Find_Optimal_Parameters(c_min, c_max, num_group_min, num_group_max, R_sum, t
                 test_result[ss] = bloom_filter.test(url_s, k)
                 ss += 1
             FP_items = sum(test_result) + len(ML_positive)
-            print('False positive items: ', [k_max, round(c, 2)], FP_items)
+            print('False positive items: %d, Number of groups: %d, c = %f' %(FP_items, k_max, round(c, 2)))
 
             if FP_opt > FP_items:
                 FP_opt = FP_items

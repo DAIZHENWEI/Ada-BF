@@ -7,9 +7,9 @@ from Bloom_filter import BloomFilter
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', action="store", dest="data_path", type=str, required=True,
                     help="path of the dataset")
-parser.add_argument('--threshold_min', action="store", dest="min_thres", type=int, required=True,
+parser.add_argument('--threshold_min', action="store", dest="min_thres", type=float, required=True,
                     help="Minimum threshold for positive samples")
-parser.add_argument('--threshold_max', action="store", dest="max_thres", type=int, required=True,
+parser.add_argument('--threshold_max', action="store", dest="max_thres", type=float, required=True,
                     help="Maximum threshold for positive samples")
 parser.add_argument('--size_of_Ada_BF', action="store", dest="R_sum", type=int, required=True,
                     help="size of the Ada-BF")
@@ -72,9 +72,9 @@ if __name__ == '__main__':
 
     '''Stage 2: Run Ada-BF on all the samples'''
     ### Test URLs
-    ML_positive = negative_sample.loc[(train_negative['score'] > thres_opt), 'url']
-    bloom_negative = negative_sample.loc[(train_negative['score'] <= thres_opt), 'url']
+    ML_positive = negative_sample.loc[(negative_sample['score'] > thres_opt), 'url']
+    bloom_negative = negative_sample.loc[(negative_sample['score'] <= thres_opt), 'url']
     score_negative = negative_sample.loc[(negative_sample['score'] < thres_opt), 'score']
-    BF_positive = bloom_filter_opt.test(bloom_negative)
+    BF_positive = bloom_filter_opt.test(bloom_negative, single_key = False)
     FP_items = sum(BF_positive) + len(ML_positive)
     print('False positive items: %d' % FP_items)
