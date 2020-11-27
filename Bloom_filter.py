@@ -20,12 +20,14 @@ class BloomFilter():
     def __init__(self, n, hash_len):
         self.n = n
         self.hash_len = int(hash_len)
-        if (n > 0) & (hash_len > 0):
+        if (self.n > 0) & (self.hash_len > 0):
             self.k = max(1,int(self.hash_len/n*0.6931472))
-            self.h = []
-            for i in range(self.k):
-                self.h.append(hashfunc(self.hash_len))
-            self.table = np.zeros(self.hash_len, dtype=int)
+        elif (self.n==0):
+            self.k = 1
+        self.h = []
+        for i in range(self.k):
+            self.h.append(hashfunc(self.hash_len))
+        self.table = np.zeros(self.hash_len, dtype=int)
     def insert(self, key):
         if self.hash_len == 0:
             raise SyntaxError('cannot insert to an empty hash table')
@@ -33,16 +35,16 @@ class BloomFilter():
             for j in range(self.k):
                 t = self.h[j](i)
                 self.table[t] = 1
-    def test(self, key):
-        test_result = 0
-        match = 0
-        if self.hash_len > 0:
-            for j in range(self.k):
-                t = self.h[j](key)
-                match += 1*(self.table[t] == 1)
-            if match == self.k:
-                test_result = 1
-        return test_result
+    # def test(self, key):
+    #     test_result = 0
+    #     match = 0
+    #     if self.hash_len > 0:
+    #         for j in range(self.k):
+    #             t = self.h[j](key)
+    #             match += 1*(self.table[t] == 1)
+    #         if match == self.k:
+    #             test_result = 1
+    #     return test_result
 
     def test(self, keys, single_key = True):
         if single_key:
