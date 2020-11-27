@@ -3,18 +3,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 from Bloom_filter import BloomFilter
+import os
 
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', action="store", dest="data_path", type=str, required=True,
                     help="path of the dataset")
+parser.add_argument('--model_path', action="store", dest="model_path", type=str, required=True,
+                    help="path of the model")
 parser.add_argument('--num_group_min', action="store", dest="min_group", type=int, required=True,
                     help="Minimum number of groups")
 parser.add_argument('--num_group_max', action="store", dest="max_group", type=int, required=True,
                     help="Maximum number of groups")
-parser.add_argument('--size_of_Ada_BF', action="store", dest="R_sum", type=int, required=True,
-                    help="size of the Ada-BF")
+parser.add_argument('--size_of_Ada_BF', action="store", dest="M_budget", type=int, required=True,
+                    help="memory budget")
 parser.add_argument('--c_min', action="store", dest="c_min", type=float, required=True,
                     help="minimum ratio of the keys")
 parser.add_argument('--c_max', action="store", dest="c_max", type=float, required=True,
@@ -26,7 +29,8 @@ results = parser.parse_args()
 DATA_PATH = results.data_path
 num_group_min = results.min_group
 num_group_max = results.max_group
-R_sum = results.R_sum
+model_size = os.path.getsize(results.model_path)
+R_sum = results.M_budget - model_size * 8
 c_min = results.c_min
 c_max = results.c_max
 
@@ -67,7 +71,7 @@ plt.show()
 
 def R_size(count_key, count_nonkey, R0):
     R = [0]*len(count_key)
-    R[0] = R0
+    R[0] = max(R0,1)
     for k in range(1, len(count_key)):
         R[k] = max(int(count_key[k] * (np.log(count_nonkey[0]/count_nonkey[k])/np.log(0.618) + R[0]/count_key[0])), 1)
     return R
@@ -136,8 +140,10 @@ def Find_Optimal_Parameters(c_min, c_max, num_group_min, num_group_max, R_sum, t
 
             Bloom_Filters = []
             for j in range(int(num_group_1 - 1)):
-                Bloom_Filters.append(BloomFilter(count_key[j], R[j]))
-                if j >= non_empty_ix:
+                if j < non_empty_ix:
+                    Bloom_Filters.append([0])
+                else:
+                    Bloom_Filters.append(BloomFilter(count_key[j], R[j]))
                     Bloom_Filters[j].insert(url_group[j])
 
             ### Test URLs
@@ -187,5 +193,6 @@ if __name__ == '__main__':
         else:
             test_result[ss] = 0
         ss += 1
-    FP_positive = sum(test_result) + len(ML_positive)
-    print('False positive items: ', FP_positive)
+    FP_items = sum(test_result) + len(ML_positive)
+    FPR = FP_items/len(url_negative)
+    print('False positive items: {}; FPR: {}; Size of quries: {}'.format(FP_items, FPR, len(url_negative)))
